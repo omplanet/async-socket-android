@@ -63,6 +63,7 @@ public class AsyncConnection extends android.os.AsyncTask<Void, String, Exceptio
 		Exception error = null;
 
 		try {
+			Log.d(TAG, "Opening socket connection.");
 			socket = new Socket();
 			socket.connect(new InetSocketAddress(url, port), timeout);
 			
@@ -77,14 +78,20 @@ public class AsyncConnection extends android.os.AsyncTask<Void, String, Exceptio
                 connectionHandler.didReceiveData(line);
             }
 		} catch (UnknownHostException ex) {
-			Log.e(TAG, ex.toString());
-			error = ex;
+			Log.e(TAG, "doInBackground(): " + ex.toString());
+			error = interrupted ? null : ex;
 		} catch (IOException ex) {
-			Log.e(TAG, ex.toString());
-			error = ex;
+			Log.d(TAG, "doInBackground(): " + ex.toString());
+			error = interrupted ? null : ex;
 		} catch (Exception ex) {
-            Log.e(TAG, ex.toString());
-            error = ex;
+            Log.e(TAG, "doInBackground(): " + ex.toString());
+            error = interrupted ? null : ex;
+        } finally {
+        	try {
+               	socket.close();
+               	out.close();
+    			in.close();
+            } catch (Exception ex) {}
         }
 
         connectionHandler.didDisconnect(error);
@@ -93,13 +100,13 @@ public class AsyncConnection extends android.os.AsyncTask<Void, String, Exceptio
 
 	public void write(final String data) {
 		try {
+			Log.d(TAG, "writ(): data = " + data);
 			out.write(data + "\n");
 			out.flush();
-			Log.d(TAG, "Sent " + data);
 		} catch (IOException ex) {
-			Log.e(TAG, ex.toString());
+			Log.e(TAG, "write(): " + ex.toString());
 		} catch (NullPointerException ex) {
-			Log.e(TAG, ex.toString());
+			Log.e(TAG, "write(): " + ex.toString());
 		}
 	}
 
@@ -116,7 +123,7 @@ public class AsyncConnection extends android.os.AsyncTask<Void, String, Exceptio
 				in.close();
             }
         } catch (IOException ex) {
-			Log.e(TAG, ex.toString());
+			Log.e(TAG, "disconnect(): " + ex.toString());
         }
 	}
 }
