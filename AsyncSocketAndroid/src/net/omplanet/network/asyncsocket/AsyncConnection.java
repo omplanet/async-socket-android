@@ -18,7 +18,7 @@ import android.util.Log;
  * until disconnect() method is called from outside or the connection has been lost.
  *
  * When the socket reads data it sends it to the ConnectionHandler via didReceiveData() method in the same thread of AsyncTask.
- * To write data to the server call write() method from outside thread. As the intput and output streams are separate there will be no problem with synchronisation. 
+ * To write data to the server call write() method from outside thread. As the input and output streams are separate there will be no problem with synchronisation.
  *
  * A useful tip: if you wish to avoid connection timeout to happen while the application is inactive try to write some meaningless data periodically as a heartbeat.  
  * A useful tip: if you wish to keep the connection alive for longer that the activity  life cycle than consider using services.
@@ -54,9 +54,8 @@ public class AsyncConnection extends android.os.AsyncTask<Void, String, Exceptio
 	@Override
 	protected void onPostExecute(Exception result) {
 		super.onPostExecute(result);
-		Log.d(TAG, "onPostExecute: Result = " + result);
-
-        connectionHandler.didDisconnect(result);
+		Log.d(TAG, "Finished communication with the socket. Result = " + result);
+        //TODO If needed move the didDisconnect(error); method call here to implement it on UI thread.
 	}
 
 	@Override
@@ -88,7 +87,7 @@ public class AsyncConnection extends android.os.AsyncTask<Void, String, Exceptio
             error = ex;
         }
 
-		Log.d(TAG, "Finished communication with the socket.");
+        connectionHandler.didDisconnect(error);
 		return error;
 	}
 
